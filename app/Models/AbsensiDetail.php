@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Absensi extends Model
+class AbsensiDetail extends Model
 {
     use HasFactory;
 
@@ -16,8 +16,13 @@ class Absensi extends Model
      * @var array
      */
     protected $fillable = [
-        'tanggal',
-        'kelas_id',
+        'absensi_id',
+        'siswa_id',
+        'hadir',
+        'alfa',
+        'sakit',
+        'izin',
+        'keterangan',
     ];
 
     /**
@@ -27,12 +32,17 @@ class Absensi extends Model
      */
     protected $casts = [
         'id' => 'integer',
-        'tanggal' => 'date',
-        'kelas_id' => 'integer',
+        'absensi_id' => 'integer',
+        'siswa_id' => 'integer',
     ];
 
-    public function kelas(): BelongsTo
+    public function absensi(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\Kelas::class);
+        return $this->belongsTo(Absensi::class);
+    }
+
+    public function siswa(): BelongsTo
+    {
+        return $this->belongsTo(Siswa::class);
     }
 }

@@ -5,10 +5,15 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\AbsensiResource\Pages;
 use App\Filament\Resources\AbsensiResource\RelationManagers;
 use App\Models\Absensi;
+use App\Models\Siswa;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -18,30 +23,30 @@ class AbsensiResource extends Resource
     protected static ?string $model = Absensi::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationLabel = 'Absensi';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\DatePicker::make('tanggal')
-                    ->required(),
-                Forms\Components\Select::make('kelas_id')
-                    ->relationship('kelas', 'id')
-                    ->required(),
-                Forms\Components\Select::make('siswa_id')
-                    ->relationship('siswa', 'id')
-                    ->required(),
-                Forms\Components\TextInput::make('hadir')
-                    ->required(),
-                Forms\Components\TextInput::make('alfa')
-                    ->required(),
-                Forms\Components\TextInput::make('sakit')
-                    ->required(),
-                Forms\Components\TextInput::make('izin')
-                    ->required(),
-                Forms\Components\TextInput::make('keterangan')
                     ->required()
-                    ->maxLength(255),
+                    ->label('Tanggal'),
+
+                Forms\Components\Select::make('kelas_id')
+                    ->label('Pilih Kelas')
+                    ->relationship('kelas', 'nama')
+                    ->required()
+                    ->reactive() // Menjadikan kelas_id dinamis
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        $set('siswa_list', Siswa::where('kelas_id', $state)->get());
+                    }),
+
+                Forms\Components\View::make('components.siswa-table')
+                    ->label('Detail Absensi')
+                    ->visible(fn($get) => $get('kelas_id')) // Tampilkan jika kelas_id sudah dipilih
+                    ->statePath('siswa_list')
+                    ->dehydrated(false),
             ]);
     }
 
@@ -49,29 +54,8 @@ class AbsensiResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('tanggal')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('kelas.id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('siswa.id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('hadir'),
-                Tables\Columns\TextColumn::make('alfa'),
-                Tables\Columns\TextColumn::make('sakit'),
-                Tables\Columns\TextColumn::make('izin'),
-                Tables\Columns\TextColumn::make('keterangan')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('tanggal')->label('Tanggal'),
+                Tables\Columns\TextColumn::make('kelas.nama')->label('Kelas'),
             ])
             ->filters([
                 //

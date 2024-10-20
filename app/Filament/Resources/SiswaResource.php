@@ -26,9 +26,7 @@ class SiswaResource extends Resource
                 Forms\Components\TextInput::make('nama')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('foto')
-                    ->required()
-                    ->maxLength(255),
+                Forms\Components\FileUpload::make('foto'),
                 Forms\Components\TextInput::make('nis')
                     ->required()
                     ->maxLength(255),
@@ -39,6 +37,9 @@ class SiswaResource extends Resource
                     ->columnSpanFull(),
                 Forms\Components\Select::make('kelas_id')
                     ->relationship('kelas', 'id')
+                    ->preload()
+                    ->createOptionForm(fn(Form $form) => KelasResource::form($form) ?? [])
+                    ->editOptionForm(fn(Form $form) => KelasResource::form($form) ?? [])
                     ->required(),
             ]);
     }

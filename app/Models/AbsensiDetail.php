@@ -45,4 +45,11 @@ class AbsensiDetail extends Model
     {
         return $this->belongsTo(Siswa::class);
     }
+
+
+    public function absensiDetails(): BelongsTo
+    {
+        return $this->belongsTo(AbsensiDetail::class);
+    }
+
 }

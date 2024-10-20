@@ -54,4 +54,3 @@ models:
     tahun_mulai: year
     tahun_selesai: year
     timestamps: true
-
